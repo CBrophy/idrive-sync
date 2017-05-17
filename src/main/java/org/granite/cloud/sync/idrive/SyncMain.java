@@ -2,6 +2,8 @@ package org.granite.cloud.sync.idrive;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import dagger.ObjectGraph;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -17,6 +19,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.granite.base.ExceptionTools;
+import org.granite.cloud.sync.idrive.api.GetServerAddressRequest;
+import org.granite.cloud.sync.idrive.api.GetServerAddressResponse;
 import org.granite.configuration.*;
 
 import java.io.IOException;
@@ -51,33 +55,17 @@ public class SyncMain {
 
   private void run() {
 
-    HttpUrl httpUrl = new HttpUrl
-        .Builder()
-        .scheme("https")
-        .host(applicationConfiguration.getString("EvsHost"))
-        .addPathSegment(applicationConfiguration.getString("EvsPathRoot"))
-        .addPathSegment(applicationConfiguration.getString("EvsRedirectEndpoint"))
-        .build();
+    final GetServerAddressRequest getServerAddressRequest = new GetServerAddressRequest(
+        applicationConfiguration.getString("Username"),
+        applicationConfiguration.getString("Password"),
+        applicationConfiguration.getString("EvsHost"),
+        applicationConfiguration.getString("EvsPathRoot"),
+        applicationConfiguration.getString("EvsRedirectEndpoint")
+    );
 
-    Logger.getGlobal().info(String.format("Looking up EVS redirect from: %s", httpUrl));
+    final GetServerAddressResponse response = getServerAddressRequest
+        .request(httpClient);
 
-    final RequestBody requestBody = new FormBody.Builder()
-        .add("uid", applicationConfiguration.getString("Username"))
-        .add("pwd", applicationConfiguration.getString("Password"))
-        .build();
-
-    final Request redirectRequest = new Request.Builder()
-        .url(httpUrl)
-        .addHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
-        .post(requestBody)
-        .build();
-
-    try {
-      final Response response = httpClient.newCall(redirectRequest).execute();
-
-      LogTools.info("Response: {0}", response.body().string());
-    } catch (IOException e) {
-      throw ExceptionTools.checkedToRuntime(e);
-    }
+    System.out.print(response.getMessage());
   }
 }
