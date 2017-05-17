@@ -1,0 +1,37 @@
+plugins {
+    id 'pl.allegro.tech.build.axion-release' version '1.6.0'
+}
+
+scmVersion {
+    tag {
+        prefix = 'idrive-sync'
+    }
+
+    versionCreator 'versionWithBranch'
+}
+
+group 'org.granite'
+version = scmVersion.version
+apply plugin: 'java'
+apply plugin: 'maven'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenLocal()
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.google.guava:guava:21.0'
+    compile 'org.granite:granite-base:0.1.42'
+    compile 'com.squareup.okhttp3:okhttp:3.8.0'
+    compile 'com.squareup.okhttp3:okhttp-apache:3.8.0'
+    compile 'com.squareup.dagger:dagger:1.2.2'
+    compile 'com.squareup.dagger:dagger-compiler:1.2.2'
+    compile 'javax.inject:javax.inject:1'
+    testCompile 'junit:junit:4.12'
+}
